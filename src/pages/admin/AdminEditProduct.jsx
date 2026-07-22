@@ -1,0 +1,221 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { ArrowLeft, Save } from "lucide-react";
+import { Input } from "../../components/common/Input";
+import { Button } from "../../components/common/Button";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { updateExistingProduct } from "../../redux/slices/productSlice";
+import { getProductName, getProductCategory, getProductImages, getProductSku, getProductTags } from "../../utils/productHelpers";
+import toast from "react-hot-toast";
+
+export const AdminEditProduct = () => {
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { products, categories } = useAppSelector((state) => state.products);
+  const targetProduct = products.find((p) => p._id === id);
+
+  const { register, handleSubmit, reset } = useForm();
+
+  useEffect(() => {
+    if (targetProduct) {
+      const images = getProductImages(targetProduct);
+      const tags = getProductTags(targetProduct);
+
+      reset({
+        title: getProductName(targetProduct),
+        sku: getProductSku(targetProduct),
+        Category: getProductCategory(targetProduct),
+        subCategory: targetProduct.subCategory || "",
+        brand: targetProduct.brand || "",
+        price: targetProduct.price || 0,
+        discountPrice: targetProduct.discountPrice || 0,
+        stock: targetProduct.stock ?? 0,
+        status: targetProduct.status || "active",
+        shortDescription: targetProduct.shortDescription || "",
+        description: targetProduct.description || "",
+        AdditionalInfo: targetProduct.AdditionalInfo || "",
+        tagsString: tags.join(", "),
+        imageUrl: images[0] || "",
+      });
+    }
+  }, [targetProduct, reset]);
+
+  if (!targetProduct) {
+    return (
+      <div className="py-12 text-center text-slate-500 text-xs">
+        Product not found.{" "}
+        <Link to="/admin/products" className="text-emerald-600 underline">
+          Return to inventory
+        </Link>
+      </div>
+    );
+  }
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    const tags = data.tagsString
+      ? data.tagsString.split(",").map((t) => t.trim()).filter(Boolean)
+      : [];
+
+    const mainImageUrl = data.imageUrl || "https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=800&q=80";
+
+    const payload = {
+      _id: id,
+      title: data.title,
+      name: data.title,
+      sku: data.sku,
+      Category: data.Category,
+      category: data.Category,
+      subCategory: data.subCategory,
+      brand: data.brand,
+      price: Number(data.price),
+      discountPrice: Number(data.discountPrice || 0),
+      finalPrice: Number(data.price) - (Number(data.price) * Number(data.discountPrice || 0)) / 100,
+      stock: Number(data.stock),
+      status: data.status,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      AdditionalInfo: data.AdditionalInfo,
+      tag: tags,
+      tags,
+      images: [
+        { url: mainImageUrl, isMain: true },
+        mainImageUrl
+      ],
+    };
+
+    const result = await dispatch(updateExistingProduct(payload));
+    setIsSubmitting(false);
+
+    if (updateExistingProduct.fulfilled.match(result)) {
+      toast.success("Product updated successfully!");
+      navigate("/admin/products");
+    } else {
+      toast.error("Failed to update product.");
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-6 pb-12 max-w-4xl mx-auto">
+      <div className="flex items-center gap-3">
+        <Link
+          to="/admin/products"
+          className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Link>
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">
+            Edit Product #{id}
+          </h1>
+          <p className="text-xs text-slate-500">
+            Update product details in Mongoose format
+          </p>
+        </div>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input label="Title *" {...register("title", { required: true })} />
+          <Input label="SKU *" {...register("sku", { required: true })} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+              Category *
+            </label>
+            <select
+              {...register("Category")}
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-xs focus:outline-none focus:border-emerald-500 font-semibold text-slate-800 dark:text-slate-200"
+            >
+              {categories.map((c) => (
+                <option key={c._id} value={c.name}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Input label="Sub Category" {...register("subCategory")} />
+          <Input label="Brand" {...register("brand")} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Input label="Price ($) *" type="number" step="0.01" {...register("price", { required: true })} />
+          <Input label="Discount Price (% 0-100)" type="number" step="1" min="0" max="100" {...register("discountPrice")} />
+          <Input label="Stock *" type="number" {...register("stock", { required: true })} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+              Status
+            </label>
+            <select
+              {...register("status")}
+              className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-xs focus:outline-none focus:border-emerald-500 font-semibold text-slate-800 dark:text-slate-200"
+            >
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+
+          <Input label="Tags (Comma separated)" {...register("tagsString")} />
+        </div>
+
+        <Input label="Main Image URL" {...register("imageUrl")} />
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            Short Description
+          </label>
+          <input
+            {...register("shortDescription")}
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-xs focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            Description
+          </label>
+          <textarea
+            rows={3}
+            {...register("description")}
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 text-xs focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
+            Additional Info
+          </label>
+          <textarea
+            rows={2}
+            {...register("AdditionalInfo")}
+            className="w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3.5 text-xs focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        <Button
+          type="submit"
+          size="lg"
+          isLoading={isSubmitting}
+          className="w-max mt-2"
+          leftIcon={<Save className="w-4 h-4" />}
+        >
+          Save Changes
+        </Button>
+      </form>
+    </div>
+  );
+};
+
