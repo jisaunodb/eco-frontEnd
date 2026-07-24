@@ -15,6 +15,6 @@ export const Footer = () => {
       type: "submit",
       className: "w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-colors shadow-sm"
     },
-    "Subscribe Now"
+    "Subscribe"
   )))), /* @__PURE__ */ React.createElement("div", { className: "flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 text-xs text-slate-500" }, /* @__PURE__ */ React.createElement("p", null, "\xA9 ", (/* @__PURE__ */ new Date()).getFullYear(), " EcoBazar Inc. All Rights Reserved."), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-2" }, /* @__PURE__ */ React.createElement(ShieldCheck, { className: "w-4 h-4 text-emerald-500" }), /* @__PURE__ */ React.createElement("span", null, "Secure 256-Bit SSL Encryption")))));
 };
