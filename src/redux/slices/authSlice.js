@@ -1,9 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "../../services/authService";
 import { getStorageItem, setStorageItem, removeStorageItem, STORAGE_KEYS } from "../../utils/storage";
-import { MOCK_USER_CUSTOMER } from "../../constants/mockData";
-const storedToken = getStorageItem(STORAGE_KEYS.TOKEN, "mock_jwt_token_sample");
-const storedUser = getStorageItem(STORAGE_KEYS.USER, MOCK_USER_CUSTOMER);
+
+
+const storedToken = getStorageItem(STORAGE_KEYS.TOKEN, null);
+const storedUser = getStorageItem(STORAGE_KEYS.USER, null);
 const initialState = {
   user: storedUser,
   token: storedToken,
@@ -16,11 +17,19 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await authService.login(credentials);
-      if (response.success) {
-        setStorageItem(STORAGE_KEYS.TOKEN, response.token);
-        setStorageItem(STORAGE_KEYS.USER, response.user);
-        return response;
-      }
+
+            if (response.success) {
+            removeStorageItem(STORAGE_KEYS.TOKEN);
+
+            setStorageItem(STORAGE_KEYS.USER, response.data);
+
+            return {
+            success: response.success,
+            user: response.data,
+            token: null,
+            };
+            }
+
       return rejectWithValue(response.message || "Login failed");
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Login failed");
@@ -33,8 +42,6 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await authService.register(userData);
       if (response.success) {
-        setStorageItem(STORAGE_KEYS.TOKEN, response.token);
-        setStorageItem(STORAGE_KEYS.USER, response.user);
         return response;
       }
       return rejectWithValue(response.message || "Registration failed");
@@ -71,31 +78,80 @@ export const authSlice = createSlice({
       state.error = null;
     }
   },
+  // extraReducers: (builder) => {
+  //   builder.addCase(loginUser.pending, (state) => {
+  //     state.isLoading = true;
+  //     state.error = null;
+  //   }).addCase(loginUser.fulfilled, (state, action) => {
+  //     state.isLoading = false;
+  //     state.isAuthenticated = true;
+  //     state.user = action.payload.user;
+  //     state.token = action.payload.token;
+  //   }).addCase(loginUser.rejected, (state, action) => {
+  //     state.isLoading = false;
+  //     state.error = action.payload;
+  //   }).addCase(registerUser.pending, (state) => {
+  //     state.isLoading = true;
+  //     state.error = null;
+  //   }).addCase(registerUser.fulfilled, (state, action) => {
+  //     state.isLoading = false;
+  //     state.isAuthenticated = true;
+  //     state.user = action.payload.user;
+  //     state.token = action.payload.token;
+  //   }).addCase(registerUser.rejected, (state, action) => {
+  //     state.isLoading = false;
+  //     state.error = action.payload;
+  //   });
+  // }
+
   extraReducers: (builder) => {
-    builder.addCase(loginUser.pending, (state) => {
+  builder
+
+    // ================= LOGIN =================
+    .addCase(loginUser.pending, (state) => {
       state.isLoading = true;
       state.error = null;
-    }).addCase(loginUser.fulfilled, (state, action) => {
+    })
+
+    .addCase(loginUser.fulfilled, (state, action) => {
       state.isLoading = false;
       state.isAuthenticated = true;
       state.user = action.payload.user;
-      state.token = action.payload.token;
-    }).addCase(loginUser.rejected, (state, action) => {
+      state.token = action.payload.token || null;
+      state.error = null;
+    })
+
+    .addCase(loginUser.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
-    }).addCase(registerUser.pending, (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.token = null;
+
+      removeStorageItem(STORAGE_KEYS.USER);
+      removeStorageItem(STORAGE_KEYS.TOKEN);
+    })
+
+
+
+    // ================= REGISTER =================
+    .addCase(registerUser.pending, (state) => {
       state.isLoading = true;
       state.error = null;
-    }).addCase(registerUser.fulfilled, (state, action) => {
+    })
+
+    .addCase(registerUser.fulfilled, (state) => {
       state.isLoading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-    }).addCase(registerUser.rejected, (state, action) => {
+      state.error = null;
+
+    })
+
+    .addCase(registerUser.rejected, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
     });
-  }
+}
+
 });
 export const { logout, updateUserProfile, clearAuthError } = authSlice.actions;
 export default authSlice.reducer;
