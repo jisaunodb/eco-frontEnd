@@ -8,6 +8,7 @@ import { loginUser } from "../../redux/slices/authSlice";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 import toast from "react-hot-toast";
+import axios from "axios";
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters")
@@ -36,7 +37,21 @@ export const LoginPage = () => {
       if (user?.role === "admin") {
         navigate("/admin/dashboard");
       } else {
-        navigate("/");
+
+        try {
+
+          let datas = await axios.post('http://localhost:5000/login',data)
+
+          localStorage.setItem('ecobazar_user',JSON.stringify(datas.data.data))
+          navigate("/");
+          console.log(data);
+        } catch (error) {
+          console.log('api login failed',error);
+
+        }
+
+
+
       }
     } else {
       toast.error(result.payload || "Login failed");
@@ -65,7 +80,7 @@ export const LoginPage = () => {
         {
     /* Demo Fast Login Buttons */
   }
-        <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex flex-col gap-2">
+        {/* <div className="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 flex flex-col gap-2">
           <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-500" /> One-Click Demo Credentials
           </span>
@@ -85,7 +100,7 @@ export const LoginPage = () => {
               Demo Admin
             </button>
           </div>
-        </div>
+        </div> */}
 
         {error && <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 text-rose-600 text-xs font-medium">
             {error}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingBag,
@@ -29,10 +29,17 @@ export const Navbar = () => {
   const cartQuantity = useAppSelector((state) => state.cart.totalQuantity);
   const cartTotal = useAppSelector((state) => state.cart.totalPrice);
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
+  let [userInfo,setuserInfo]= useState({})
+
+ useEffect(()=>{
+  let storedData = JSON.parse(localStorage.getItem('ecobazar_user'))
+  setuserInfo(storedData)
+},[isAuthenticated])
+
   const handleLogout = () => {
     dispatch(logout());
     setUserDropdownOpen(false);
-    navigate("/login");
+    navigate("/");
   };
   return /* @__PURE__ */ React.createElement("header", { className: "sticky top-0 z-40 w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors shadow-sm" }, /* @__PURE__ */ React.createElement("div", { className: "hidden md:block bg-slate-900 text-slate-300 text-xs py-2 px-4 sm:px-8 border-b border-slate-800" }, /* @__PURE__ */ React.createElement("div", { className: "max-w-7xl mx-auto flex items-center justify-between" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-6" }, /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1.5 text-emerald-400 font-medium" }, /* @__PURE__ */ React.createElement(ShieldCheck, { className: "w-4 h-4" }), " 100% Certified Organic & Eco-Friendly Marketplace"), /* @__PURE__ */ React.createElement("span", { className: "flex items-center gap-1" }, /* @__PURE__ */ React.createElement(PhoneCall, { className: "w-3.5 h-3.5" }), " Support: +1 (800) 555-ECOB")), /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-4" }, /* @__PURE__ */ React.createElement(
     "button",
@@ -42,7 +49,7 @@ export const Navbar = () => {
     },
     darkMode ? /* @__PURE__ */ React.createElement(Sun, { className: "w-3.5 h-3.5 text-amber-400" }) : /* @__PURE__ */ React.createElement(Moon, { className: "w-3.5 h-3.5" }),
     /* @__PURE__ */ React.createElement("span", null, darkMode ? "Light Mode" : "Dark Mode")
-  ), isAuthenticated && user?.role === "admin" && /* @__PURE__ */ React.createElement(
+  ), isAuthenticated && userInfo?.role === "admin" && /* @__PURE__ */ React.createElement(
     Link,
     {
       to: "/admin/dashboard",
@@ -83,12 +90,12 @@ export const Navbar = () => {
     /* @__PURE__ */ React.createElement(
       "img",
       {
-        src: user?.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
-        alt: user?.name,
+        src: userInfo?.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80",
+        alt: userInfo?.name,
         className: "w-8 h-8 rounded-xl object-cover"
       }
     ),
-    /* @__PURE__ */ React.createElement("span", { className: "hidden xl:inline text-xs font-bold text-slate-800 dark:text-slate-200" }, user?.name?.split(" ")[0]),
+    /* @__PURE__ */ React.createElement("span", { className: "hidden xl:inline text-xs font-bold text-slate-800 dark:text-slate-200" }, userInfo?.name?.split(" ")[0]),
     /* @__PURE__ */ React.createElement(ChevronDown, { className: "w-3.5 h-3.5 text-slate-400" })
   ), userDropdownOpen && /* @__PURE__ */ React.createElement(
     "div",
@@ -96,8 +103,8 @@ export const Navbar = () => {
       onClick: () => setUserDropdownOpen(false),
       className: "absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-soft-lg py-2 z-50 animate-in fade-in slide-in-from-top-2"
     },
-    /* @__PURE__ */ React.createElement("div", { className: "px-4 py-2 border-b border-slate-100 dark:border-slate-800" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs font-bold text-slate-900 dark:text-slate-100" }, user?.name), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] text-slate-500 truncate" }, user?.email)),
-    user?.role === "admin" && /* @__PURE__ */ React.createElement(
+    /* @__PURE__ */ React.createElement("div", { className: "px-4 py-2 border-b border-slate-100 dark:border-slate-800" }, /* @__PURE__ */ React.createElement("p", { className: "text-xs font-bold text-slate-900 dark:text-slate-100" }, userInfo?.name), /* @__PURE__ */ React.createElement("p", { className: "text-[11px] text-slate-500 truncate" }, userInfo?.email)),
+    userInfo?.role === "admin" && /* @__PURE__ */ React.createElement(
       Link,
       {
         to: "/admin/dashboard",
@@ -204,7 +211,7 @@ export const Navbar = () => {
       className: "px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
     },
     "FAQ"
-  ), isAuthenticated && user?.role === "admin" && /* @__PURE__ */ React.createElement(
+  ), isAuthenticated && userInfo?.role === "admin" && /* @__PURE__ */ React.createElement(
     Link,
     {
       to: "/admin/dashboard",
