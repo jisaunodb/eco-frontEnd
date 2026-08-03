@@ -1,3 +1,111 @@
+// import { useState } from "react";
+// import { User as UserIcon, Mail, Save, ShieldCheck } from "lucide-react";
+// import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+// import { updateProfile } from "../../redux/slices/authSlice";
+// import { Input } from "../../components/common/Input";
+// import { Button } from "../../components/common/Button";
+// import toast from "react-hot-toast";
+// import axios from "axios";
+
+// export const AdminProfilePage = () => {
+//   const dispatch = useAppDispatch();
+//   const user = useAppSelector((state) => state.auth.user);
+//   const [isSaving, setIsSaving] = useState(false);
+//   const [name, setName] = useState(user?.name || "Administrator");
+//   const [email, setEmail] = useState(user?.email || "admin@ecobazar.com");
+
+//     const [isSaving, setIsSaving] = useState(false);
+
+
+//   const API = import.meta.env.VITE_API_URL;
+
+//       const handleSubmit = async (data) => {
+//       setIsSaving(true);
+
+//       try {
+//       const updateRes = await axios.post(
+//         `${API}/update/${user?._id}`,
+//         data
+
+
+//       );
+//       if (!user?._id) {
+//       toast.error("User not found");
+//       return;
+//       }
+
+//       if (!updateRes.data.success) {
+//         toast.error(updateRes.data.message);
+//         return;
+//       }
+
+//       // আবার User Fetch
+//       const userRes = await axios.post(
+//         `${API}/singleusers/${user?._id}`
+//       );
+
+//       dispatch(updateProfile(userRes.data.data));
+
+//       reset({
+//         name: userRes.data.data.name || "",
+//         email: userRes.data.data.email || "",
+//         phoneNumber: userRes.data.data.phoneNumber || ""
+//       });
+
+//       toast.success("Admin Profile Updated Successfully");
+
+//       } catch (err) {
+//       console.log(err);
+
+//       toast.error(
+//         err.response?.data?.message || "Admin Profile Update Failed"
+//       );
+//       } finally {
+//       setIsSaving(false);
+//       }
+//       };
+
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setIsSaving(true);
+//     const result = await dispatch(updateProfile({ name, email }));
+//     setIsSaving(false);
+//     if (updateProfile.fulfilled.match(result)) {
+//       toast.success("Admin profile updated!");
+//     } else {
+//       toast.error("Failed to update admin profile.");
+//     }
+//   };
+//   return <div className="flex flex-col gap-6 pb-12 max-w-2xl">
+//       <div>
+//         <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Administrator Profile</h1>
+//         <p className="text-xs text-slate-500 mt-1">Manage system administrator credentials and contact details</p>
+//       </div>
+
+//       <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
+//         <div className="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+//           <img src={user?.avatar} alt="" className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500" />
+//           <div>
+//             <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">{user?.name}</h3>
+//             <span className="text-xs font-bold text-emerald-600 uppercase flex items-center gap-1">
+//               <ShieldCheck className="w-4 h-4" /> Root Administrator
+//             </span>
+//           </div>
+//         </div>
+
+//         <Input label="Admin Full Name" value={name} onChange={(e) => setName(e.target.value)} leftIcon={<UserIcon className="w-4 h-4" />} />
+//         <Input label="Admin Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} leftIcon={<Mail className="w-4 h-4" />} />
+
+//         <Button type="submit" size="lg" isLoading={isSaving} className="w-max mt-2" leftIcon={<Save className="w-4 h-4" />}>
+//           Save Admin Profile
+//         </Button>
+//       </form>
+//     </div>;
+// };
+
+
+
 import { useState } from "react";
 import { User as UserIcon, Mail, Save, ShieldCheck } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
@@ -5,24 +113,60 @@ import { updateProfile } from "../../redux/slices/authSlice";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 import toast from "react-hot-toast";
+import axios from "axios";
+
 export const AdminProfilePage = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+
   const [isSaving, setIsSaving] = useState(false);
   const [name, setName] = useState(user?.name || "Administrator");
   const [email, setEmail] = useState(user?.email || "admin@ecobazar.com");
+
+  const API = import.meta.env.VITE_API_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user?._id) {
+      toast.error("User not found");
+      return;
+    }
+
     setIsSaving(true);
-    const result = await dispatch(updateProfile({ name, email }));
-    setIsSaving(false);
-    if (updateProfile.fulfilled.match(result)) {
-      toast.success("Admin profile updated!");
-    } else {
-      toast.error("Failed to update admin profile.");
+
+    try {
+      const updateRes = await axios.post(`${API}/update/${user?._id}`, {
+        name,
+        email
+      });
+
+      if (!updateRes.data.success) {
+        toast.error(updateRes.data.message);
+        return;
+      }
+
+      // আবার updated user data fetch করা
+      const userRes = await axios.post(`${API}/singleusers/${user._id}`);
+
+      // Redux state / localStorage update
+      dispatch(updateProfile(userRes.data.data));
+
+      // Local form state ও sync করা
+      setName(userRes.data.data.name || "");
+      setEmail(userRes.data.data.email || "");
+
+      toast.success("Admin Profile Updated Successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error(err.response?.data?.message || "Admin Profile Update Failed");
+    } finally {
+      setIsSaving(false);
     }
   };
-  return <div className="flex flex-col gap-6 pb-12 max-w-2xl">
+
+  return (
+    <div className="flex flex-col gap-6 pb-12 max-w-2xl">
       <div>
         <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Administrator Profile</h1>
         <p className="text-xs text-slate-500 mt-1">Manage system administrator credentials and contact details</p>
@@ -46,5 +190,6 @@ export const AdminProfilePage = () => {
           Save Admin Profile
         </Button>
       </form>
-    </div>;
+    </div>
+  );
 };

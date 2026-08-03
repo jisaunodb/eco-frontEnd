@@ -304,7 +304,7 @@ export const RegisterPage = () => {
         </div>
 
         {/* Account Role Selector */}
-        {/* <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           <label className="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">
             Account Type
           </label>
@@ -343,7 +343,7 @@ export const RegisterPage = () => {
               <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center">Manage Products & Orders</span>
             </button>
           </div>
-        </div> */}
+        </div>
 
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">

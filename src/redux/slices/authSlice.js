@@ -20,13 +20,13 @@ export const loginUser = createAsyncThunk(
 
             if (response.success) {
             removeStorageItem(STORAGE_KEYS.TOKEN);
-
+            setStorageItem(STORAGE_KEYS.TOKEN, response.token);
             setStorageItem(STORAGE_KEYS.USER, response.data);
 
             return {
             success: response.success,
             user: response.data,
-            token: null,
+            token: response.token,
             };
             }
 

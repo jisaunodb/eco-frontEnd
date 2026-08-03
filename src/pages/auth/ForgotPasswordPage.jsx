@@ -42,12 +42,7 @@ export const ForgotPasswordPage = () => {
             <p className="text-xs text-emerald-800 dark:text-emerald-300 font-medium leading-relaxed">
               We've emailed a password reset link to <strong>{email}</strong>. Please check your inbox or spam folder.
             </p>
-            <Link
-    to="/reset-password/demo_token_123"
-    className="inline-block py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors"
-  >
-              Click Here to Open Reset Screen (Demo)
-            </Link>
+
           </div> : <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <Input
     label="Email Address"

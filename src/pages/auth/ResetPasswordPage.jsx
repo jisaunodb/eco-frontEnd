@@ -23,13 +23,13 @@ export const ResetPasswordPage = () => {
     }
     setIsLoading(true);
     try {
-      const res = await authService.resetPassword(token || "default", password);
+      const res = await authService.resetPassword(token || "default", password,confirmPassword);
       setIsLoading(false);
       toast.success(res.message || "Password reset successful!");
       navigate("/login");
-    } catch {
+    } catch (err) {
       setIsLoading(false);
-      toast.error("Failed to reset password.");
+      toast.error(err.response?.data?.message || "Failed to reset password.");
     }
   };
   return <div className="min-h-[75vh] flex items-center justify-center py-12 px-4">

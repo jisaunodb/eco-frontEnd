@@ -44,9 +44,9 @@ export const API_ENDPOINTS = {
     LOGIN: "/login",
     REGISTER: "/registration",
     LOGOUT: "/logout",
-    FORGOT_PASSWORD: "/forgot-password",
-    RESET_PASSWORD: "/reset-password",
-    VERIFY_EMAIL: "/verify-email"
+    FORGOT_PASSWORD: "/forgotpassword",
+    RESET_PASSWORD: "/resetpassword",
+    VERIFY_EMAIL: "/verifyemail"
   },
   PRODUCTS: {
     BASE: "/products",
@@ -71,7 +71,7 @@ export const API_ENDPOINTS = {
   USER: {
     PROFILE: "/user/profile",
     ADDRESSES: "/user/addresses",
-    PASSWORD: "/user/change-password"
+    PASSWORD: "/changepassword"
   },
   ADMIN: {
     ANALYTICS: "/admin/analytics",

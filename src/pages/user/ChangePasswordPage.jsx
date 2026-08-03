@@ -7,6 +7,7 @@ import { authService } from "../../services/authService";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 import toast from "react-hot-toast";
+import { useAppSelector } from "../../redux/hooks";
 const passwordSchema = z.object({
   oldPassword: z.string().min(6, "Old password is required"),
   newPassword: z.string().min(6, "New password must be at least 6 characters"),
@@ -17,6 +18,8 @@ const passwordSchema = z.object({
 });
 export const ChangePasswordPage = () => {
   const [isSaving, setIsSaving] = useState(false);
+
+  const token = useAppSelector((state) => state.auth.token);
   const {
     register,
     handleSubmit,
@@ -28,13 +31,15 @@ export const ChangePasswordPage = () => {
   const onSubmit = async (data) => {
     setIsSaving(true);
     try {
-      const res = await authService.changePassword(data.oldPassword, data.newPassword);
-      setIsSaving(false);
+      const res = await authService.changePassword(token, data.oldPassword, data.newPassword, data.confirmPassword)
+
       toast.success(res.message || "Password updated successfully!");
       reset();
-    } catch {
+    } catch (err) {
+
+            toast.error(err.response?.data?.message || "Failed to update password.");
+    } finally {
       setIsSaving(false);
-      toast.error("Failed to update password.");
     }
   };
   return <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">

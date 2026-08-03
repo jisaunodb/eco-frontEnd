@@ -87,40 +87,35 @@ export const authService = {
     return response.data;
   },
   register: async (userData) => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, userData);
-    return response.data;
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER,userData);
+  return response.data;
   },
   forgotPassword: async (email) => {
-    try {
+
       const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
       return response.data;
-    } catch {
-      return {
-        success: true,
-        message: "Password reset link sent to your registered email."
-      };
-    }
+
   },
-  resetPassword: async (token, newPassword) => {
-    try {
-      const response = await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, newPassword });
-      return response.data;
-    } catch {
-      return {
-        success: true,
-        message: "Password reset successfully."
-      };
-    }
-  },
+  resetPassword: async (token, newPassword, confirmPassword) => {
+  const response = await apiClient.post(`${API_ENDPOINTS.AUTH.RESET_PASSWORD}/${token}`, {
+    newPassword,
+    confirmPassword
+  });
+  return response.data;
+},
+changePassword: async (token, oldPassword, newPassword, confirmPassword) => {
+  const response = await apiClient.post(`${API_ENDPOINTS.USER.PASSWORD}/${token}`, {
+    currentPassword:oldPassword,
+    newPassword,
+    confirmPassword
+  });
+  return response.data;
+},
+
   verifyEmail: async (token) => {
-    try {
-      const response = await apiClient.get(`${API_ENDPOINTS.AUTH.VERIFY_EMAIL}/${token}`);
+
+      const response = await apiClient.post(`${API_ENDPOINTS.AUTH.VERIFY_EMAIL}/${token}`);
       return response.data;
-    } catch {
-      return {
-        success: true,
-        message: "Email address verified successfully."
-      };
-    }
+
   }
 };

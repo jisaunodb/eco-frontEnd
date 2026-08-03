@@ -6,11 +6,13 @@ import { updateProfile } from "../../redux/slices/authSlice";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
 import toast from "react-hot-toast";
+import axios from "axios";
 export const UserAddressPage = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const [isSaving, setIsSaving] = useState(false);
-  const { register, handleSubmit } = useForm({
+
+  const { register, handleSubmit,reset } = useForm({
     defaultValues: {
       street: user?.address?.street || "742 Evergreen Terrace",
       city: user?.address?.city || "Springfield",
@@ -18,16 +20,68 @@ export const UserAddressPage = () => {
       country: user?.address?.country || "United States"
     }
   });
-  const onSubmit = async (data) => {
-    setIsSaving(true);
-    const result = await dispatch(updateProfile({ address: data }));
-    setIsSaving(false);
-    if (updateProfile.fulfilled.match(result)) {
-      toast.success("Shipping address updated!");
-    } else {
-      toast.error("Failed to update address.");
-    }
-  };
+  // const onSubmit = async (data) => {
+  //   setIsSaving(true);
+  //   const result = await dispatch(updateProfile({ address: data }));
+  //   setIsSaving(false);
+  //   if (updateProfile.fulfilled.match(result)) {
+  //     toast.success("Shipping address updated!");
+  //   } else {
+  //     toast.error("Failed to update address.");
+  //   }
+  // };
+
+const API = import.meta.env.VITE_API_URL;
+
+      const onSubmit = async (data) => {
+      setIsSaving(true);
+
+      if (!user?._id) {
+      toast.error("User not found");
+      return;
+      }
+
+
+      try {
+      const updateRes = await axios.post(
+        `${API}/update/${user?._id}`,{
+
+          address: data
+        });
+
+      if (!updateRes.data.success) {
+        toast.error(updateRes.data.message);
+        return;
+      }
+
+      // আবার User Fetch
+      const userRes = await axios.post(
+        `${API}/singleusers/${user?._id}`
+      );
+
+      dispatch(updateProfile(userRes.data.data));
+
+      reset({
+      street: userRes.data.data.address?.street || "",
+      city: userRes.data.data.address?.city || "",
+      zipCode: userRes.data.data.address?.zipCode || "",
+      country: userRes.data.data.address?.country || ""
+      });
+
+      toast.success("Profile Updated Successfully");
+
+      } catch (err) {
+      console.log(err);
+
+      toast.error(
+        err.response?.data?.message || "Profile Update Failed"
+      );
+      } finally {
+      setIsSaving(false);
+      }
+      }
+
+
   return <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
       <div>
         <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Saved Address Book</h2>
