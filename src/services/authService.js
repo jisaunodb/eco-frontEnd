@@ -82,14 +82,69 @@
 import { apiClient } from "./api";
 import { API_ENDPOINTS } from "../constants/apiEndpoints";
 export const authService = {
+  // login: async (credentials) => {
+  //   const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
+  //   return response.data;
+  // },
+  // register: async (userData) => {
+  //   const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER,userData);
+  // return response.data;
+  // },
+
   login: async (credentials) => {
+  try {
     const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, credentials);
-    return response.data;
-  },
-  register: async (userData) => {
-    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER,userData);
-  return response.data;
-  },
+    const data = response.data;
+
+    // backend response ke frontend format e convert
+    return {
+      success: data.success ?? true,
+      token: data.token || data.accessToken || `token_${Date.now()}`,
+      user: data.user || {
+        _id: data.id || data._id,
+        name: data.name || data.username,
+        email: data.email,
+        role: data.role || "user"
+      },
+      message: data.message || data.massage
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.response?.data?.massage || "Login failed"
+    };
+  }
+},
+
+register: async (userData) => {
+  try {
+    const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, {
+      username: userData.name,  // backend username expect korte pare
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      password: userData.password
+    });
+    const data = response.data;
+
+    return {
+      success: data.success ?? true,
+      token: data.token || `token_${Date.now()}`,
+      user: data.user || {
+        _id: data.id || data._id,
+        name: userData.name,
+        email: userData.email,
+        role: "user"
+      }
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.response?.data?.message || error.response?.data?.massage || "Registration failed"
+    };
+  }
+},
+
   forgotPassword: async (email) => {
 
       const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
