@@ -15,13 +15,15 @@ import {
   Sun,
   Moon,
   Home,
-  Search
+  Search,
+  UserCheck
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { toggleTheme } from "../redux/slices/themeSlice";
 import { logout } from "../redux/slices/authSlice";
 const VENDOR_NAV = [
   { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Users", path: "/admin/users",icon: UserCheck},
   { name: "Product Manager", path: "/admin/products", icon: Package },
   { name: "Order Tracker", path: "/admin/orders", icon: ShoppingBag },
   { name: "Categories", path: "/admin/categories", icon: Grid }
