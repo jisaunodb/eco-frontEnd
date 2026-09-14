@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { productService } from "../../services/productService";
-import { INITIAL_PRODUCTS, INITIAL_CATEGORIES } from "../../constants/mockData";
+
 const initialState = {
-  products: INITIAL_PRODUCTS,
-  categories: INITIAL_CATEGORIES,
+  products: [],
+  categories: [],
   selectedProduct: null,
   isLoading: false,
   error: null,
@@ -16,13 +16,15 @@ const initialState = {
     rating: 0
   }
 };
+
 export const fetchProducts = createAsyncThunk(
   "products/fetchAll",
   async (params) => {
     const response = await productService.getAllProducts(params);
-    return response.products;
+    return response.product; // ⚠️ backend "product" key e pathay (singular), "products" na
   }
 );
+
 export const fetchSingleProduct = createAsyncThunk(
   "products/fetchSingle",
   async (id) => {
@@ -30,6 +32,7 @@ export const fetchSingleProduct = createAsyncThunk(
     return response.product;
   }
 );
+
 export const createProductThunk = createAsyncThunk(
   "products/create",
   async (productData) => {
@@ -38,6 +41,7 @@ export const createProductThunk = createAsyncThunk(
   }
 );
 export const createNewProduct = createProductThunk;
+
 export const updateProductThunk = createAsyncThunk(
   "products/update",
   async ({ id, data }) => {
@@ -45,6 +49,7 @@ export const updateProductThunk = createAsyncThunk(
     return { id, data, message: response.message };
   }
 );
+
 export const updateExistingProduct = createAsyncThunk(
   "products/updateExisting",
   async (productData, { dispatch }) => {
@@ -53,6 +58,7 @@ export const updateExistingProduct = createAsyncThunk(
     return result;
   }
 );
+
 export const deleteProductThunk = createAsyncThunk(
   "products/delete",
   async (id) => {
@@ -61,6 +67,7 @@ export const deleteProductThunk = createAsyncThunk(
   }
 );
 export const deleteExistingProduct = deleteProductThunk;
+
 export const productSlice = createSlice({
   name: "products",
   initialState,
@@ -104,5 +111,6 @@ export const productSlice = createSlice({
     });
   }
 });
+
 export const { setFilters, resetFilters } = productSlice.actions;
 export default productSlice.reducer;

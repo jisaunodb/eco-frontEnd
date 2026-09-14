@@ -49,12 +49,12 @@ export const API_ENDPOINTS = {
     VERIFY_EMAIL: "/verifyemail"
   },
   PRODUCTS: {
-    BASE: "/products",
-    CATEGORIES: "/products/categories",
-    FEATURED: "/products/featured",
-    NEW_ARRIVALS: "/products/new-arrivals",
-    SEARCH: "/products/search"
-  },
+  BASE: "/allProduct",
+  SINGLE: "/SingleProduct",
+  CREATE: "/createproduct",
+  UPDATE: "/UpdateProduct",
+  DELETE: "/DeleteProduct"
+},
   CART: {
     BASE: "/cart",
     ADD: "/cart/add",

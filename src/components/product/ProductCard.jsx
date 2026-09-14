@@ -49,8 +49,8 @@ export const ProductCard = ({ product }) => {
         {discountPercentage > 0 && (
           <Badge variant="danger">-{discountPercentage}% OFF</Badge>
         )}
-        {product.isFeatured && <Badge variant="warning">Featured</Badge>}
-        {product.isNewArrival && <Badge variant="info">New Harvest</Badge>}
+        {product.field === "Featured Organic Products" && <Badge variant="warning">Featured</Badge>}
+      {product.field === "Just Arrived This Week" && <Badge variant="info">New Harvest</Badge>}
         {product.status && product.status !== "active" && (
           <Badge variant="neutral">{product.status}</Badge>
         )}

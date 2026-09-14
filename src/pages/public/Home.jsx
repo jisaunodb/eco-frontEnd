@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Flame, Sparkles, Leaf } from "lucide-react";
 import { HeroSlider } from "../../components/product/HeroSlider";
@@ -7,14 +7,34 @@ import { ProductCard } from "../../components/product/ProductCard";
 import { BannerSection } from "../../components/product/BannerSection";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchProducts } from "../../redux/slices/productSlice";
+import { getProductCategory, getProductMainImage } from "../../utils/productHelpers";
+
 export const Home = () => {
   const dispatch = useAppDispatch();
-  const { products, categories, isLoading } = useAppSelector((state) => state.products);
+  // ⚠️ "categories" Redux theke ar anbo na - ota mock data chilo.
+  // Products theke e dynamically category বানাবো.
+  const { products, isLoading } = useAppSelector((state) => state.products);
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-  const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 8);
-  const newArrivals = products.filter((p) => p.isNewArrival).slice(0, 4);
+
+  // ✅ real DB product theke category list তৈরি
+  const derivedCategories = useMemo(() => {
+    const map = {};
+    products.forEach((p) => {
+      const cat = getProductCategory(p);
+      if (!map[cat]) {
+        map[cat] = { name: cat, productCount: 0, image: getProductMainImage(p) };
+      }
+      map[cat].productCount += 1;
+    });
+    return Object.values(map);
+  }, [products]);
+
+  const featuredProducts = products.filter((p) => p.field === "Featured Organic Products").slice(0, 8);
+  const newArrivals = products.filter((p) => p.field === "Just Arrived This Week").slice(0, 4);
+
   return /* @__PURE__ */ React.createElement("div", { className: "flex flex-col gap-12 pb-12" }, /* @__PURE__ */ React.createElement(HeroSlider, null), /* @__PURE__ */ React.createElement("section", { className: "flex flex-col gap-6" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1" }, /* @__PURE__ */ React.createElement(Leaf, { className: "w-3.5 h-3.5" }), " Organic Marketplace"), /* @__PURE__ */ React.createElement("h2", { className: "text-2xl font-black text-slate-900 dark:text-slate-100" }, "Popular Categories")), /* @__PURE__ */ React.createElement(
     Link,
     {
@@ -23,7 +43,7 @@ export const Home = () => {
     },
     /* @__PURE__ */ React.createElement("span", null, "View All"),
     /* @__PURE__ */ React.createElement(ArrowRight, { className: "w-4 h-4" })
-  )), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" }, categories.map((cat) => /* @__PURE__ */ React.createElement(CategoryCard, { key: cat._id, category: cat })))), /* @__PURE__ */ React.createElement("section", { className: "flex flex-col gap-6" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1" }, /* @__PURE__ */ React.createElement(Sparkles, { className: "w-3.5 h-3.5 text-amber-500" }), " Daily Fresh Selections"), /* @__PURE__ */ React.createElement("h2", { className: "text-2xl font-black text-slate-900 dark:text-slate-100" }, "Featured Organic Products")), /* @__PURE__ */ React.createElement(
+  )), /* @__PURE__ */ React.createElement("div", { className: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" }, derivedCategories.map((cat) => /* @__PURE__ */ React.createElement(CategoryCard, { key: cat.name, category: cat })))), /* @__PURE__ */ React.createElement("section", { className: "flex flex-col gap-6" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center justify-between" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1" }, /* @__PURE__ */ React.createElement(Sparkles, { className: "w-3.5 h-3.5 text-amber-500" }), " Daily Fresh Selections"), /* @__PURE__ */ React.createElement("h2", { className: "text-2xl font-black text-slate-900 dark:text-slate-100" }, "Featured Organic Products")), /* @__PURE__ */ React.createElement(
     Link,
     {
       to: "/shop",

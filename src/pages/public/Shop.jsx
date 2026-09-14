@@ -6,33 +6,51 @@ import { Breadcrumb } from "../../components/common/Breadcrumb";
 import { Pagination } from "../../components/common/Pagination";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchProducts, setFilters, resetFilters } from "../../redux/slices/productSlice";
+import { getProductName, getProductCategory } from "../../utils/productHelpers";
+
 export const Shop = () => {
   const dispatch = useAppDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const { products, categories, isLoading, filters } = useAppSelector(
+  // ⚠️ "categories" Redux theke ar anbo na - mock data chilo.
+  const { products, isLoading, filters } = useAppSelector(
     (state) => state.products
   );
   const categoryParam = searchParams.get("category") || "";
+
   useEffect(() => {
     dispatch(fetchProducts());
     if (categoryParam) {
       dispatch(setFilters({ category: categoryParam }));
     }
   }, [dispatch, categoryParam]);
+
+  // ✅ real product data theke category list ber kora
+  const derivedCategories = useMemo(() => {
+    const map = {};
+    products.forEach((p) => {
+      const cat = getProductCategory(p);
+      map[cat] = (map[cat] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, count]) => ({ name, productCount: count }));
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     let list = [...products];
     if (filters.category) {
       list = list.filter(
-        (p) => p.category.toLowerCase() === filters.category.toLowerCase()
+        (p) => getProductCategory(p).toLowerCase() === filters.category.toLowerCase()
       );
     }
     if (filters.search) {
       const q = filters.search.toLowerCase();
       list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)
+        (p) =>
+          getProductName(p).toLowerCase().includes(q) ||
+          (p.description || "").toLowerCase().includes(q) ||
+          (p.brand || "").toLowerCase().includes(q)
       );
     }
     if (filters.minPrice > 0 || filters.maxPrice < 500) {
@@ -42,22 +60,24 @@ export const Shop = () => {
       });
     }
     if (filters.rating > 0) {
-      list = list.filter((p) => p.ratings >= filters.rating);
+      list = list.filter((p) => (p.ratings || 4.8) >= filters.rating);
     }
     if (filters.sort === "price-low") {
       list.sort((a, b) => (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price));
     } else if (filters.sort === "price-high") {
       list.sort((a, b) => (b.discountPrice ?? b.price) - (a.discountPrice ?? a.price));
     } else if (filters.sort === "rating") {
-      list.sort((a, b) => b.ratings - a.ratings);
+      list.sort((a, b) => (b.ratings || 4.8) - (a.ratings || 4.8));
     }
     return list;
   }, [products, filters]);
+
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
   const handleCategorySelect = (catName) => {
     const newCat = filters.category === catName ? "" : catName;
     dispatch(setFilters({ category: newCat }));
@@ -68,11 +88,13 @@ export const Shop = () => {
     }
     setCurrentPage(1);
   };
+
   const handleReset = () => {
     dispatch(resetFilters());
     setSearchParams({});
     setCurrentPage(1);
   };
+
   return <div className="flex flex-col gap-6 pb-12">
       <Breadcrumb items={[{ label: "Shop" }]} />
 
@@ -100,8 +122,8 @@ export const Shop = () => {
             <div className="flex flex-col gap-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">Categories</h4>
               <div className="flex flex-col gap-1.5">
-                {categories.map((cat) => <button
-    key={cat._id}
+                {derivedCategories.map((cat) => <button
+    key={cat.name}
     onClick={() => handleCategorySelect(cat.name)}
     className={`text-left px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center justify-between ${filters.category.toLowerCase() === cat.name.toLowerCase() ? "bg-emerald-600 text-white" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"}`}
   >
