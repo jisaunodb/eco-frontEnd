@@ -281,7 +281,7 @@ export const AdminProductsList = () => {
   useEffect(() => {
     async function getProducts() {
       try {
-        const res = await axios.get("http://localhost:5000/allProduct");
+        const res = await axios.get("https://ecobazar-backend-1qs6.onrender.com/allProduct");
         setProducts(res?.data?.product || []);
       } catch (err) {
         console.error(err);
@@ -311,7 +311,7 @@ export const AdminProductsList = () => {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await axios.delete(`http://localhost:5000/DeleteProduct/${deleteId}`);
+      await axios.delete(`https://ecobazar-backend-1qs6.onrender.com/DeleteProduct/${deleteId}`);
       setProducts((prev) => prev.filter((p) => p._id !== deleteId));
       toast.success("Product removed from catalog.");
     } catch (err) {

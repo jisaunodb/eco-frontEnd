@@ -327,7 +327,7 @@ export const AdminCreateProduct = () => {
         // ⚠️ backend multer field name eita e match korte hobe: upload.array("photos")
       });
 
-      const res = await axios.post("http://localhost:5000/createproduct", formData, {
+      const res = await axios.post("https://ecobazar-backend-1qs6.onrender.com/createproduct", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
