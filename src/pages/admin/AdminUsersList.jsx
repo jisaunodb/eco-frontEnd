@@ -66,7 +66,8 @@ export const AdminUsersList = () => {
       const handleDelete = async () => {
       if (!deleteId) return;
       try {
-        await axios.delete(`https://ecobazar-backend-1qs6.onrender.com/delete/${deleteId}`); // <-- tomar actual delete route boshao
+        await axios.delete(`https://ecobazar-backend-1qs6.onrender.com/delete/${deleteId}`); // <--  delete route boshao
+        // await axios.delete(`https://localhost:5000/delete/${deleteId}`); // <--  actual delete route boshao
         setUsers((prev) => prev.filter((u) => u._id !== deleteId));
         toast.success("User removed successfully.");
       } catch (err) {

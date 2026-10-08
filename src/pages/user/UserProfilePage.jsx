@@ -170,115 +170,247 @@
 
 
 
+// import { useEffect, useState } from "react";
+// import { useForm } from "react-hook-form";
+// import { User as UserIcon, Mail, Phone, Save } from "lucide-react";
+// import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+// import { updateUserProfile } from "../../redux/slices/authSlice";
+// import { Input } from "../../components/common/Input";
+// import { Button } from "../../components/common/Button";
+// import toast from "react-hot-toast";
+// import axios from "axios";
+// export const UserProfilePage = () => {
+//   const dispatch = useAppDispatch();
+//   const { user } = useAppSelector((state) => state.auth);
+//   const [isSaving, setIsSaving] = useState(false);
+//   const { register, handleSubmit,reset  } = useForm({
+//       defaultValues: {
+//       name: user?.name || "",
+//       email: user?.email || "",
+//       phoneNumber: user?.phoneNumber || ""
+//     }
+//   });
+
+
+//       const API = import.meta.env.VITE_API_URL;
+
+//       const onSubmit = async (data) => {
+//       setIsSaving(true);
+
+//       try {
+//       const updateRes = await axios.post(
+//         `${API}/update/${user?._id}`,
+//         data
+
+
+//       );
+//       if (!user?._id) {
+//       toast.error("User not found");
+//       return;
+//       }
+
+//       if (!updateRes.data.success) {
+//         toast.error(updateRes.data.message);
+//         return;
+//       }
+
+//       // আবার User Fetch
+//       const userRes = await axios.post(
+//         `${API}/singleusers/${user?._id}`
+//       );
+
+//       dispatch(updateUserProfile(userRes.data.data));
+
+//       reset({
+//         name: userRes.data.data.name || "",
+//         email: userRes.data.data.email || "",
+//         phoneNumber: userRes.data.data.phoneNumber || ""
+//       });
+
+//       toast.success("Profile Updated Successfully");
+
+//       } catch (err) {
+//       console.log(err);
+
+//       toast.error(
+//         err.response?.data?.message || "Profile Update Failed"
+//       );
+//       } finally {
+//       setIsSaving(false);
+//       }
+//       };
+
+
+//       useEffect(() => {
+
+//       const getUser = async () => {
+
+//       try {
+
+//         const res = await axios.post(
+//           `${API}/singleusers/${user._id}`
+//         );
+
+//         if (res.data.success) {
+
+//           dispatch(updateUserProfile(res.data.data));
+
+//           reset({
+//             name: res.data.data.name || "",
+//             email: res.data.data.email || "",
+//             phoneNumber: res.data.data.phoneNumber || ""
+//           });
+
+//         }
+
+//       } catch (err) {
+//         console.log(err);
+//       }
+
+//       };
+
+//       if (user?._id) {
+//       getUser();
+//       }
+
+//       }, [user?._id, reset, dispatch]);
+
+
+
+
+//   return <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
+//       <div>
+//         <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Personal Information</h2>
+//         <p className="text-xs text-slate-500 mt-1">
+//           Manage your profile details and contact preferences
+//         </p>
+//       </div>
+
+//       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+//         <Input
+//     label="Full Name"
+//     leftIcon={<UserIcon className="w-4 h-4" />}
+//     {...register("name")}
+//   />
+
+//         <Input
+//     label="Email Address"
+//     type="email"
+//     leftIcon={<Mail className="w-4 h-4" />}
+//     {...register("email")}
+//   />
+
+//         <Input
+//     label="Phone Number"
+//     type="tel"
+//     leftIcon={<Phone className="w-4 h-4" />}
+//     {...register("phoneNumber")}
+//   />
+
+//         <Button
+//     type="submit"
+//   size="lg"
+//   disabled={isSaving}
+//   isLoading={isSaving}
+//     className="w-max mt-2"
+//     leftIcon={<Save className="w-4 h-4" />}
+//   >
+//           Save Changes
+//         </Button>
+//       </form>
+//     </div>;
+// };
+
+
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { User as UserIcon, Mail, Phone, Save } from "lucide-react";
+import axios from "axios";
+import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { updateUserProfile } from "../../redux/slices/authSlice";
 import { Input } from "../../components/common/Input";
 import { Button } from "../../components/common/Button";
-import toast from "react-hot-toast";
-import axios from "axios";
+
+const API = import.meta.env.VITE_API_URL || "https://ecobazar-backend-1qs6.onrender.com";
+
+// controller je shape e-i ferot dey ({data}, {user} ba direct object), user ta ber kore
+const pickUser = (res) => res?.data?.data || res?.data?.user || res?.data;
+
+const toFormValues = (u) => ({
+  name: u?.name || "",
+  email: u?.email || "",
+  phoneNumber: u?.phoneNumber || u?.phone || ""
+});
+
 export const UserProfilePage = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const userId = user?._id || user?.id;
+
   const [isSaving, setIsSaving] = useState(false);
-  const { register, handleSubmit,reset  } = useForm({
-      defaultValues: {
-      name: user?.name || "",
-      email: user?.email || "",
-      phoneNumber: user?.phoneNumber || ""
-    }
+
+  const { register, handleSubmit, reset } = useForm({
+    defaultValues: toFormValues(user)
   });
 
+  // page khulle database theke fresh data ene form e boshai
+  useEffect(() => {
+    if (!userId) return;
 
-      const API = import.meta.env.VITE_API_URL;
-
-      const onSubmit = async (data) => {
-      setIsSaving(true);
-
+    const getUser = async () => {
       try {
-      const updateRes = await axios.post(
-        `${API}/update/${user?._id}`,
-        data
+        const res = await axios.post(`${API}/singleusers/${userId}`);
+        const fresh = pickUser(res);
 
+        if (fresh && (fresh.name || fresh.email)) {
+          dispatch(updateUserProfile(fresh));
+          reset(toFormValues(fresh));
+        }
+      } catch (err) {
+        console.log("fetch user error:", err);
+        toast.error(err.response?.data?.message || "Profile load kora jayni");
+      }
+    };
 
-      );
-      if (!user?._id) {
+    getUser();
+  }, [userId, reset, dispatch]);
+
+  const onSubmit = async (data) => {
+    if (!userId) {
       toast.error("User not found");
       return;
-      }
+    }
 
-      if (!updateRes.data.success) {
-        toast.error(updateRes.data.message);
+    setIsSaving(true);
+    try {
+      const updateRes = await axios.post(`${API}/update/${userId}`, data);
+
+      if (updateRes.data?.success === false) {
+        toast.error(updateRes.data.message || "Profile Update Failed");
         return;
       }
 
-      // আবার User Fetch
-      const userRes = await axios.post(
-        `${API}/singleusers/${user?._id}`
-      );
+      // update hoyar por DB theke abar niye ashi
+      const userRes = await axios.post(`${API}/singleusers/${userId}`);
+      const fresh = pickUser(userRes);
 
-      dispatch(updateUserProfile(userRes.data.data));
-
-      reset({
-        name: userRes.data.data.name || "",
-        email: userRes.data.data.email || "",
-        phoneNumber: userRes.data.data.phoneNumber || ""
-      });
+      if (fresh) {
+        dispatch(updateUserProfile(fresh));
+        reset(toFormValues(fresh));
+      }
 
       toast.success("Profile Updated Successfully");
-
-      } catch (err) {
-      console.log(err);
-
-      toast.error(
-        err.response?.data?.message || "Profile Update Failed"
-      );
-      } finally {
+    } catch (err) {
+      console.log("update error:", err);
+      toast.error(err.response?.data?.message || "Profile Update Failed");
+    } finally {
       setIsSaving(false);
-      }
-      };
+    }
+  };
 
-
-      useEffect(() => {
-
-      const getUser = async () => {
-
-      try {
-
-        const res = await axios.post(
-          `${API}/singleusers/${user._id}`
-        );
-
-        if (res.data.success) {
-
-          dispatch(updateUserProfile(res.data.data));
-
-          reset({
-            name: res.data.data.name || "",
-            email: res.data.data.email || "",
-            phoneNumber: res.data.data.phoneNumber || ""
-          });
-
-        }
-
-      } catch (err) {
-        console.log(err);
-      }
-
-      };
-
-      if (user?._id) {
-      getUser();
-      }
-
-      }, [user?._id, reset, dispatch]);
-
-
-
-
-  return <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
       <div>
         <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Personal Information</h2>
         <p className="text-xs text-slate-500 mt-1">
@@ -288,35 +420,36 @@ export const UserProfilePage = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input
-    label="Full Name"
-    leftIcon={<UserIcon className="w-4 h-4" />}
-    {...register("name")}
-  />
+          label="Full Name"
+          leftIcon={<UserIcon className="w-4 h-4" />}
+          {...register("name")}
+        />
 
         <Input
-    label="Email Address"
-    type="email"
-    leftIcon={<Mail className="w-4 h-4" />}
-    {...register("email")}
-  />
+          label="Email Address"
+          type="email"
+          leftIcon={<Mail className="w-4 h-4" />}
+          {...register("email")}
+        />
 
         <Input
-    label="Phone Number"
-    type="tel"
-    leftIcon={<Phone className="w-4 h-4" />}
-    {...register("phoneNumber")}
-  />
+          label="Phone Number"
+          type="tel"
+          leftIcon={<Phone className="w-4 h-4" />}
+          {...register("phoneNumber")}
+        />
 
         <Button
-    type="submit"
-  size="lg"
-  disabled={isSaving}
-  isLoading={isSaving}
-    className="w-max mt-2"
-    leftIcon={<Save className="w-4 h-4" />}
-  >
+          type="submit"
+          size="lg"
+          disabled={isSaving}
+          isLoading={isSaving}
+          className="w-max mt-2"
+          leftIcon={<Save className="w-4 h-4" />}
+        >
           Save Changes
         </Button>
       </form>
-    </div>;
+    </div>
+  );
 };

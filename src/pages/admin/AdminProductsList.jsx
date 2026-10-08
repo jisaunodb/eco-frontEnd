@@ -282,6 +282,7 @@ export const AdminProductsList = () => {
     async function getProducts() {
       try {
         const res = await axios.get("https://ecobazar-backend-1qs6.onrender.com/allProduct");
+        //  const res = await axios.get("http://localhost:5000/allproduct")
         setProducts(res?.data?.product || []);
       } catch (err) {
         console.error(err);

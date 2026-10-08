@@ -628,6 +628,7 @@ export const AdminEditProduct = () => {
     async function getProduct() {
       try {
         const res = await axios.get(`https://ecobazar-backend-1qs6.onrender.com/SingleProduct/${id}`);
+        // const res = await axios.get(`http://localhost:5000/SingleProduct/${id}`);
         const product = res?.data?.product || null;
         setTargetProduct(product);
       } catch (err) {
@@ -751,6 +752,7 @@ export const AdminEditProduct = () => {
       formData.append("mainKey", mainKey || "");
 
       const res = await axios.post(`https://ecobazar-backend-1qs6.onrender.com/UpdateProduct/${id}`, formData, {
+      // const res = await axios.post(`http://localhost:5000/UpdateProduct/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

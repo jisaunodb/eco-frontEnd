@@ -4,7 +4,7 @@ export const MOCK_USER_CUSTOMER = {
   email: "sarah.j@example.com",
   role: "user",
   phone: "+1 (555) 019-2834",
-  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+  avatar: "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
   addresses: [
     {
       _id: "addr_1",
@@ -25,7 +25,7 @@ export const MOCK_USER_ADMIN = {
   email: "admin@ecobazar.com",
   role: "admin",
   phone: "+1 (555) 999-0011",
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80",
+  avatar: "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
   isVerified: true,
   createdAt: "2025-11-01"
 };

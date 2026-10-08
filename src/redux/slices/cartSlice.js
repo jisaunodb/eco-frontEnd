@@ -4,8 +4,10 @@ const storedCart = getStorageItem(STORAGE_KEYS.CART, []);
 const calculateTotals = (items) => {
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = items.reduce((acc, item) => {
-    const price = item.product.discountPrice ?? item.product.price;
-    return acc + price * item.quantity;
+    const price = Number(item.product.price) || 0;
+    const discount = Number(item.product.discountPrice) || 0;
+    const finalPrice = price - (price * discount) / 100;
+    return acc + finalPrice * item.quantity;
   }, 0);
   return { totalQuantity, totalPrice };
 };

@@ -73,7 +73,7 @@ export const AdminLayout = () => {
   })))), /* @__PURE__ */ React.createElement("div", { className: "p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-3" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center space-x-3 p-2 rounded-2xl bg-slate-50 dark:bg-slate-800/50" }, /* @__PURE__ */ React.createElement(
     "img",
     {
-      src: user?.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+      src: user?.avatar || "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
       alt: user?.name,
       className: "w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700"
     }

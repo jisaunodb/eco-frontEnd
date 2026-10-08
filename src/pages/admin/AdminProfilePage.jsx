@@ -174,7 +174,7 @@ export const AdminProfilePage = () => {
 
       <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-soft flex flex-col gap-6">
         <div className="flex items-center gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-          <img src={user?.avatar} alt="" className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500" />
+          <img src={user?.avatar || "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg"} alt="" className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500" />
           <div>
             <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">{user?.name}</h3>
             <span className="text-xs font-bold text-emerald-600 uppercase flex items-center gap-1">

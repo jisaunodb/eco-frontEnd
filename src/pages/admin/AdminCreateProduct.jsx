@@ -263,11 +263,12 @@ export const AdminCreateProduct = () => {
     },
   });
 
-  // ✅ imageFiles = raw File objects (FormData e pathanor jonno)
+  // imageFiles = raw File objects (FormData e pathanor jonno)
   const [imageFiles, setImageFiles] = useState([]);
-  // ✅ preview shudhu dekhanor jonno (base64 na, blob URL)
+  //  preview shudhu dekhanor jonno (base64 na, blob URL)
   const [previewList, setPreviewList] = useState([]);
   const [mainIndex, setMainIndex] = useState(0);
+  const [bulkUploading, setBulkUploading] = useState(false);
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files || []);
@@ -302,7 +303,7 @@ export const AdminCreateProduct = () => {
     else if (mainIndex > index) setMainIndex((prev) => prev - 1);
   };
 
-  // ✅ FormData diye real file backend e pathano
+  //  FormData diye real file backend e pathano
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
@@ -341,6 +342,72 @@ export const AdminCreateProduct = () => {
     }
   };
 
+  const handleBulkExcelUpload = async (e) =>{
+    const file = e.target.files[0];
+    if (!file) return
+      const formdata = new FormData();
+      formdata.append('excell-file', file)
+
+
+    try {
+    setBulkUploading(true);
+    const res = await axios.post(
+      "https://ecobazar-backend-1qs6.onrender.com/bulk/createproduct",
+      // "http://localhost:5000/bulk/createproduct",
+      formdata,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    toast.success(res?.data?.message || "Bulk upload successful!");
+  } catch (err) {
+    console.error(err);
+    toast.error(err?.response?.data?.message || "Bulk upload failed");
+  } finally {
+    setBulkUploading(false);
+    e.target.value = ""; // same file abar select korle change event fire korbe
+  }
+
+}
+
+const handleBulkExcelExport = async () => {
+  try {
+    const response = await axios.get(
+      // "http://localhost:5000/bulk/exportproduct",
+      "https://ecobazar-backend-1qs6.onrender.com/bulk/exportproduct",
+      {
+        responseType: "blob",
+      }
+    );
+
+    const blob = new Blob([response.data], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "products.xlsx";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    toast.success("Products exported successfully!");
+
+  } catch (err) {
+    console.error(err);
+
+    toast.error(
+      err?.response?.data?.message || "Bulk export failed"
+    );
+  }
+};
+
   return (
     <div className="flex flex-col gap-6 pb-12 max-w-4xl mx-auto">
       <div className="flex items-center gap-3">
@@ -354,6 +421,23 @@ export const AdminCreateProduct = () => {
           <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Create New Product</h1>
           <p className="text-xs text-slate-500">Publish a new item using Mongoose schema fields</p>
         </div>
+            <label className="inline-flex items-center justify-center cursor-pointer border-r-0 p-[10px] bg-emerald-600 rounded-xl text-white">
+          <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleBulkExcelUpload}
+          className="hidden"
+          />
+          Bulk Upload
+          </label>
+          <button
+            type="button"
+            onClick={handleBulkExcelExport}
+            className="inline-flex items-center cursor-pointer justify-center p-[10px] bg-blue-600 rounded-xl text-white"
+          >
+          Bulk Export
+          </button>
+
       </div>
 
       <form

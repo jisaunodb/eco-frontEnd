@@ -19,7 +19,7 @@ export const UserLayout = () => {
   return /* @__PURE__ */ React.createElement("div", { className: "min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors" }, /* @__PURE__ */ React.createElement(Navbar, null), /* @__PURE__ */ React.createElement("main", { className: "flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8" }, /* @__PURE__ */ React.createElement("div", { className: "flex flex-col md:flex-row gap-8" }, /* @__PURE__ */ React.createElement("aside", { className: "w-full md:w-64 shrink-0" }, /* @__PURE__ */ React.createElement("div", { className: "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-soft flex flex-col gap-6" }, /* @__PURE__ */ React.createElement("div", { className: "flex items-center gap-4 pb-6 border-b border-slate-100 dark:border-slate-800" }, /* @__PURE__ */ React.createElement(
     "img",
     {
-      src: user?.avatar || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+      src: user?.avatar || "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
       alt: user?.name,
       className: "w-14 h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm"
     }

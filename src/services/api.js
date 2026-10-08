@@ -1,6 +1,7 @@
 import axios from "axios";
 import { getStorageItem, STORAGE_KEYS } from "../utils/storage";
 const API_URL = import.meta.env.VITE_API_URL || "https://ecobazar-backend-1qs6.onrender.com";
+// const API_URL = import.meta.env.VITE_API_URL || "https://localhost:5000";
 export const apiClient = axios.create({
   baseURL: API_URL,
   headers: {

@@ -10,7 +10,7 @@ const mockUsers = [
     email: "michael.brown@example.com",
     role: "user",
     phone: "+1 (555) 234-5678",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+    avatar: "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
     isVerified: true,
     isActive: true,
     createdAt: "2026-04-18"
@@ -21,7 +21,7 @@ const mockUsers = [
     email: "vendor@greenvalley.com",
     role: "vendor",
     phone: "+1 (555) 888-9900",
-    avatar: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=200&q=80",
+    avatar: "https://res.cloudinary.com/uiipxgas/image/upload/v1791129385/ecobazar-products/uxy44khdzctn7znejm8t.jpg",
     isVerified: true,
     isActive: true,
     createdAt: "2026-02-10"
